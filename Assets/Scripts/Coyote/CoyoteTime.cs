@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class CoyoteTime : MonoBehaviour
 {
@@ -25,11 +26,19 @@ public class CoyoteTime : MonoBehaviour
     public float platformY = 0f;
     public float platformEdgeX = 5f;
     public float floorY = -5f;
+    
+    [Header("Vibration")]
+    [SerializeField] private float vibrationStrength;
+    [SerializeField] private float vibrationSpeed;
+    [SerializeField] private float vibrationTime;
+    [SerializeField] private float floatTime;
 
     private Vector3 velocity;
     private Vector3 startPosition;
 
     private bool isJumping;
+    private bool isVibrating;
+    private Coroutine vibrationCoroutine;
 
     void Start()
     {
@@ -56,7 +65,7 @@ public class CoyoteTime : MonoBehaviour
         // MOVE FORWARD
         // =========================
         Vector3 pos = transform.position;
-        pos.x += speed * dt;
+        //pos.x += speed * dt;
 
         // =========================
         // GRAVITY
@@ -79,6 +88,11 @@ public class CoyoteTime : MonoBehaviour
                 isJumping = false;
                 coyoteTimer = coyoteTime;
             }
+        }
+
+        else if (!isVibrating && coyoteTimer <= 0f)
+        {
+            //vibrationCoroutine = StartCoroutine(Vibrate());
         }
 
         // =========================
@@ -123,7 +137,10 @@ public class CoyoteTime : MonoBehaviour
         // =========================
         // APPLY POSITION
         // =========================
-        transform.position = pos;
+        if (!isVibrating)
+        {
+            transform.position = pos;
+        }
     }
 
     void ResetBall()
@@ -133,5 +150,33 @@ public class CoyoteTime : MonoBehaviour
         coyoteTimer = 0f;
         jumpBufferTimer = 0f;
         isJumping = false;
+    }
+
+    [ContextMenu("Vibrate")]
+    private IEnumerator Vibrate()
+    {
+        isVibrating = true;
+        Vector3 pos = transform.position;
+        float time = 0f;
+        while (time < floatTime)
+        {
+            time += Time.deltaTime;
+            pos.y = platformY;
+            velocity.y = 0f;
+            transform.position = pos;
+            yield return null;
+        }
+
+        time = 0f;
+        while (time < vibrationTime)
+        {
+            time += Time.deltaTime;
+            float offset = Mathf.PingPong(Time.time * vibrationSpeed, vibrationStrength);
+            transform.position = new Vector3(pos.x + offset, pos.y, pos.z);
+            yield return null;
+        }
+
+        isVibrating = false;
+        Debug.Log("Vibrating finished!");
     }
 }

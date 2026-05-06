@@ -24,6 +24,8 @@ public class MarioJumpController : MonoBehaviour
     private float currentJumpMaxY;
     private float lastJumpMaxY;
     private bool wasGroundedLastFrame = true;
+    private float maxPLayerY;
+    private bool prevCurrentSwitch = false;
 
     void Update()
     {
@@ -34,6 +36,8 @@ public class MarioJumpController : MonoBehaviour
             verticalVelocity = jumpVelocity;
             isGrounded = false;
 
+            prevCurrentSwitch = !prevCurrentSwitch;
+            maxPLayerY = 0f;
             // Start tracking new jump
             currentJumpMaxY = transform.position.y;
         }
@@ -76,6 +80,9 @@ public class MarioJumpController : MonoBehaviour
         }
 
         wasGroundedLastFrame = isGrounded;
+        
+        if (transform.position.y > maxPLayerY)
+            maxPLayerY = transform.position.y;
     }
 
     void OnDrawGizmos()
@@ -90,5 +97,23 @@ public class MarioJumpController : MonoBehaviour
 
             Gizmos.DrawLine(left, right);
         }
+
+
+        if (prevCurrentSwitch)
+        {
+            Gizmos.color = Color.green;
+            Vector3 right = new Vector3(1, maxPLayerY, 0);
+            Gizmos.DrawLine(Vector3.right, right);
+        }
+        else
+        {
+            Gizmos.color = Color.blueViolet;
+            Vector3 left = new Vector3(-1, maxPLayerY, 0);
+            Gizmos.DrawLine(Vector3.left, left);
+        }
+            
+        
+    
+        
     }
 }  
