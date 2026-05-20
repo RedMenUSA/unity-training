@@ -11,7 +11,7 @@ public class Ball : MonoBehaviour
 
     private Vector2 velocity;
 
-    void Start()
+    private void Start()
     {
         Launch();
     }
