@@ -4,7 +4,7 @@ using UnityEditor;
 public class SceneMeshValidator
 {
     // Vertex budget threshold
-    private const int MAX_VERTEX_COUNT = 65000;
+    private const int MAX_VERTEX_COUNT = 1000;
 
     [MenuItem("Tools/Validate Scene Meshes")]
     public static void ValidateSceneMeshes()
