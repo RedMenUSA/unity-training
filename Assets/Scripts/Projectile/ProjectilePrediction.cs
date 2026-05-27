@@ -3,6 +3,11 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public class ProjectilePrediction : MonoBehaviour
 {
+
+    [SerializeField] private Material lineRendererMaterial;
+    private int shaderID;
+    private int shaderIDMin;
+    private int shaderIDMax;
     [Header("References")]
     public Transform firePoint;
 
@@ -14,6 +19,8 @@ public class ProjectilePrediction : MonoBehaviour
 
     [Tooltip("Vertical launch angle")]
     public float launchAngle = 45f;
+    public float launchAngleMin = 5f;
+    public float launchAngleMax = 85f;
 
     [Header("Prediction Settings")]
     public int maxSteps = 50;
@@ -26,10 +33,21 @@ public class ProjectilePrediction : MonoBehaviour
         _lineRenderer = GetComponent<LineRenderer>();
     }
 
+    private void Start()
+    {
+        lineRendererMaterial = gameObject.GetComponent<LineRenderer>().material;
+        shaderID = Shader.PropertyToID("_Angle");
+        shaderIDMin = Shader.PropertyToID("_MinAngle");
+        shaderIDMax = Shader.PropertyToID("_MaxAngle");
+        lineRendererMaterial.SetFloat(shaderIDMin, launchAngleMin);
+        lineRendererMaterial.SetFloat(shaderIDMax, launchAngleMax);
+    }
+
     private void Update()
     {
         HandleInput();
         DrawPrediction();
+        UpdateLineRenderer();
     }
 
     private void HandleInput()
@@ -41,7 +59,7 @@ public class ProjectilePrediction : MonoBehaviour
         launchAngle += Input.GetAxis("Vertical") * 60f * Time.deltaTime;
 
         // Clamp angle so we don't flip upside down
-        launchAngle = Mathf.Clamp(launchAngle, 5f, 85f);
+        launchAngle = Mathf.Clamp(launchAngle, launchAngleMin, launchAngleMax);
 
         // Rotate launcher visually
         transform.rotation = Quaternion.Euler(-launchAngle, yaw, 0f);
@@ -70,5 +88,9 @@ public class ProjectilePrediction : MonoBehaviour
             // Velocity changes position
             position += velocity * timeStep;
         }
+    }
+    private void UpdateLineRenderer()
+    {
+        lineRendererMaterial.SetFloat(shaderID, launchAngle);
     }
 }
