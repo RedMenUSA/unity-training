@@ -1,2 +1,2 @@
-# physics-unity
-A repo to teach game physics with the Unity engine.
+# unity-training
+Unity project for educational and training purposes.

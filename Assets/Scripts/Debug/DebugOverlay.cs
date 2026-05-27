@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Text;
 
-public class TelemetryDebugMenu : MonoBehaviour
+public class DebugOverlay : MonoBehaviour
 {
     [Header("Player")]
     public Transform player;
@@ -19,47 +19,42 @@ public class TelemetryDebugMenu : MonoBehaviour
 
     private CoyoteTime coyoteTime;
 
-    void Awake()
+    private void Awake()
     {
         coyoteTime = FindAnyObjectByType<CoyoteTime>();
     }
 
-    void Start()
+    private void Start()
     {
         sessionStartTime = Time.time;
-
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         coyoteTime.onBallFellOnFloor.AddListener(HandleFall);
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         coyoteTime.onBallFellOnFloor.RemoveListener(HandleFall);
     }
 
-    void Update()
+    private void Update()
     {
         // Toggle debug menu with F1
-        if (Input.GetKeyDown(KeyCode.F1))
-        {
-            showMenu = !showMenu;
-        }
-
+        if (Input.GetKeyDown(KeyCode.F1)) showMenu = !showMenu;
+        
         // FPS smoothing
         deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
     }
 
-    void OnGUI()
+    private void OnGUI()
     {
-        if (!showMenu)
-            return;
+        if (!showMenu) return;
 
-        GUI.Box(new Rect(10, 10, 320, 260), "Telemetry Debug Menu");
+        GUI.Box(new Rect(10, 10, 320, 260), "Debug Overlay");
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         // --- Player Telemetry ---
         sb.AppendLine("=== PLAYER ===");
@@ -67,6 +62,8 @@ public class TelemetryDebugMenu : MonoBehaviour
         if (player != null)
         {
             sb.AppendLine($"Position: {player.position}");
+            
+            // TODO: The GetComponent is expensive, we need to cache it.
             sb.AppendLine($"Speed: {player.GetComponent<Rigidbody>()?.linearVelocity.magnitude:F2}");
         }
 
@@ -76,7 +73,7 @@ public class TelemetryDebugMenu : MonoBehaviour
         // --- Session Telemetry ---
         sb.AppendLine("\n=== SESSION ===");
 
-        float sessionDuration = Time.time - sessionStartTime;
+        var sessionDuration = Time.time - sessionStartTime;
 
         sb.AppendLine($"Session Time: {sessionDuration:F1}s");
         sb.AppendLine($"Current Scene: {UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
@@ -86,7 +83,7 @@ public class TelemetryDebugMenu : MonoBehaviour
 
         if (showFPS)
         {
-            float fps = 1.0f / deltaTime;
+            var fps = 1.0f / deltaTime;
             sb.AppendLine($"FPS: {fps:F1}");
         }
 
@@ -96,7 +93,8 @@ public class TelemetryDebugMenu : MonoBehaviour
         GUI.Label(new Rect(20, 40, 300, 220), sb.ToString());
     }
 
-    void HandleFall()
+    // TODO: We need to display the number of times the ball falls on the floor per run.
+    private void HandleFall()
     {
         Debug.Log("Ball fell (code listener)");
     }
